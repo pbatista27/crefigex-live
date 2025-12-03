@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
 -- Users and roles
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -136,6 +138,12 @@ CREATE TABLE IF NOT EXISTS payment_plans (
   days_between INT
 );
 
+INSERT INTO payment_plans (name, initial_percentage, installments, days_between)
+VALUES
+  ('Plan 7 días', 30, 2, 7),
+  ('Plan 15 días', 30, 2, 15)
+ON CONFLICT DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   customer_id UUID REFERENCES users(id),
@@ -163,6 +171,19 @@ CREATE TABLE IF NOT EXISTS installments (
   amount BIGINT,
   due_date TIMESTAMPTZ,
   paid BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Cart
+CREATE TABLE IF NOT EXISTS cart_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id),
+  vendor_id UUID REFERENCES vendors(id),
+  product_id UUID REFERENCES products(id),
+  service_id UUID REFERENCES services(id),
+  quantity INT NOT NULL,
+  unit_price BIGINT,
+  total BIGINT,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 

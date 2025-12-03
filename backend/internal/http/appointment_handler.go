@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -18,22 +19,41 @@ func NewAppointmentHandler(appointments *service.AppointmentService) *Appointmen
 }
 
 func (h *AppointmentHandler) ListSlots(c *gin.Context) {
-	// Placeholder static slots
-	c.JSON(http.StatusOK, gin.H{"slots": []string{"2024-01-01T10:00:00Z", "2024-01-01T14:00:00Z"}})
+	slots, err := h.appointments.AvailableSlots(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"slots": slots})
 }
 
 func (h *AppointmentHandler) Create(c *gin.Context) {
-	var req domain.Appointment
+	var req struct {
+		ServiceID   string    `json:"service_id"`
+		CustomerID  string    `json:"customer_id"`
+		VendorID    string    `json:"vendor_id"`
+		ScheduledAt time.Time `json:"scheduled_at"`
+		Status      string    `json:"status"`
+	}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	req.CustomerID = c.GetString("userID")
-	if err := h.appointments.Create(c.Request.Context(), &req); err != nil {
+	app := domain.Appointment{
+		ServiceID:   req.ServiceID,
+		CustomerID:  c.GetString("userID"),
+		VendorID:    req.VendorID,
+		ScheduledAt: req.ScheduledAt,
+		Status:      req.Status,
+	}
+	if app.Status == "" {
+		app.Status = "PENDING"
+	}
+	if err := h.appointments.Create(c.Request.Context(), &app); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, gin.H{"appointment": req})
+	c.JSON(http.StatusCreated, gin.H{"appointment": app})
 }
 
 func (h *AppointmentHandler) ListMine(c *gin.Context) {

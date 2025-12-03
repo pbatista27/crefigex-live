@@ -32,9 +32,9 @@ func (h *ChatHandler) Create(c *gin.Context) {
 		return
 	}
 	msg := &domain.VideoChatMessage{
-		VideoID: c.Param("id"),
+		VideoID:  c.Param("id"),
 		SenderID: c.GetString("userID"),
-		Message: req.Message,
+		Message:  req.Message,
 	}
 	if err := h.videos.CreateMessage(c.Request.Context(), msg); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

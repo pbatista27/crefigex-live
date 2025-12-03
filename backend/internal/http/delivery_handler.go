@@ -35,7 +35,10 @@ func (h *DeliveryHandler) UpdateStatus(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	_ = h.deliveries.UpdateStatus(c.Request.Context(), c.Param("id"), req.Status, "")
+	if err := h.deliveries.UpdateStatus(c.Request.Context(), c.Param("id"), req.Status, ""); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.Status(http.StatusNoContent)
 }
 
@@ -44,7 +47,10 @@ func (h *DeliveryHandler) MarkDelivered(c *gin.Context) {
 		PhotoURL string `json:"photo_url"`
 	}
 	_ = c.ShouldBindJSON(&req)
-	_ = h.deliveries.UpdateStatus(c.Request.Context(), c.Param("id"), domain.DeliveryDelivered, req.PhotoURL)
+	if err := h.deliveries.UpdateStatus(c.Request.Context(), c.Param("id"), domain.DeliveryDelivered, req.PhotoURL); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 	c.Status(http.StatusNoContent)
 }
 

@@ -1,21 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../core/state/app_state.dart';
+import '../../core/state/user_state.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final tiles = [
+    const accent = Color(0xFF6366f1);
+    final user = Provider.of<UserState>(context, listen: false);
+    final isClient = user.roles.contains('CLIENTE');
+    final tiles = <_NavTile>[
       _NavTile('Videos en vivo', Icons.ondemand_video, '/videos', 'Compra viendo streams y lives.'),
       _NavTile('Catálogo', Icons.storefront, '/catalog', 'Explora productos y servicios.'),
-      _NavTile('Carrito', Icons.shopping_cart_outlined, '/cart', 'Revisa lo que agregarás.'),
-      _NavTile('Checkout', Icons.credit_score, '/checkout', 'Planes BNPL y entrega.'),
-      _NavTile('Mis pedidos', Icons.receipt_long, '/orders', 'Historial de compras.'),
-      _NavTile('Pagos BNPL', Icons.payments, '/payments', 'Cuotas y comprobantes.'),
-      _NavTile('Mis entregas', Icons.local_shipping, '/deliveries', 'Estado de envíos.'),
-      _NavTile('Citas', Icons.event_available, '/appointments', 'Agenda con prestadores.'),
-      _NavTile('Panel comercio', Icons.business_center, '/vendor/commerce', 'Gestiona productos y entregas.'),
-      _NavTile('Panel prestador', Icons.handshake, '/vendor/prestador', 'Gestiona servicios y agenda.'),
+      if (isClient) ...[
+        _NavTile('Carrito', Icons.shopping_cart_outlined, '/cart', 'Revisa lo que agregarás.'),
+        _NavTile('Checkout', Icons.credit_score, '/checkout', 'Planes y entrega.'),
+        _NavTile('Mis pedidos', Icons.receipt_long, '/orders', 'Historial de compras.'),
+        _NavTile('Pagos', Icons.payments, '/payments', 'Cuotas y comprobantes.'),
+        _NavTile('Mis entregas', Icons.local_shipping, '/deliveries', 'Estado de envíos.'),
+        _NavTile('Citas', Icons.event_available, '/appointments', 'Agenda con prestadores.'),
+      ],
     ];
 
     return Scaffold(
@@ -28,29 +34,90 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: () => Navigator.pushNamed(context, '/register'),
-                          child: const Text('Regístrate'),
-                        ),
-                        const SizedBox(width: 8),
-                        OutlinedButton(
-                          onPressed: () => Navigator.pushNamed(context, '/login'),
-                          child: const Text('Entrar'),
-                        ),
-                      ],
+                    Consumer<UserState>(
+                      builder: (_, userState, __) {
+                        final logged = userState.userId != null;
+                        return Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFFEEF2FF), Color(0xFFE0E7FF)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 22,
+                                backgroundColor: Colors.white,
+                                child: Icon(logged ? Icons.verified_user : Icons.person_outline, color: accent),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      logged ? (userState.name.isNotEmpty ? userState.name : 'Usuario') : 'Bienvenido',
+                                      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, color: Color(0xFF0F172A)),
+                                    ),
+                                    Text(
+                                      logged ? 'Listo para comprar o agendar' : 'Entra o regístrate para vivir la experiencia',
+                                      style: const TextStyle(color: Color(0xFF475569), fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (!logged) ...[
+                                OutlinedButton.icon(
+                                  onPressed: () => Navigator.pushNamed(context, '/register'),
+                                  icon: const Icon(Icons.edit_outlined, size: 16),
+                                  label: const Text('Regístrate'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: accent,
+                                    side: const BorderSide(color: Color(0xFFCBD5E1)),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(
+                                  onPressed: () => Navigator.pushNamed(context, '/login'),
+                                  icon: const Icon(Icons.login, size: 16),
+                                  label: const Text('Entrar'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: accent,
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                ),
+                              ] else
+                                TextButton(
+                                  onPressed: () async {
+                                    await Provider.of<AppState>(context, listen: false).setToken(null);
+                                    Provider.of<UserState>(context, listen: false).clear();
+                                  },
+                                  child: const Text('Salir'),
+                                ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(height: 10),
-                    const Text('Crefigex Live', style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold)),
+                    const SizedBox(height: 18),
+                    const Text('Crefigex Live', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
                     const SizedBox(height: 6),
-                    const Text('Marketplace BNPL con live commerce y servicios.', style: TextStyle(color: Colors.black54)),
+                    const Text('Marketplace con live commerce y servicios.', style: TextStyle(color: Color(0xFF475569))),
+                    const SizedBox(height: 16),
+                    _SearchBar(),
+                    const SizedBox(height: 12),
+                    _FilterChips(),
                   ],
                 ),
               ),
             ),
             SliverPadding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               sliver: SliverGrid(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -61,7 +128,7 @@ class HomeScreen extends StatelessWidget {
                 ),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
-                  childAspectRatio: 0.95,
+                  childAspectRatio: 0.98,
                   crossAxisSpacing: 14,
                   mainAxisSpacing: 14,
                 ),
@@ -88,7 +155,7 @@ class _GradientCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const accent = Color(0xFF0E9384);
+    const accent = Color(0xFF6366f1);
     return InkWell(
       onTap: () => Navigator.pushNamed(context, tile.route),
       borderRadius: BorderRadius.circular(18),
@@ -131,6 +198,51 @@ class _GradientCard extends StatelessWidget {
             )
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SearchBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+        boxShadow: [
+          BoxShadow(color: Colors.black12.withOpacity(0.05), blurRadius: 8, offset: const Offset(0, 4)),
+        ],
+      ),
+      child: Row(
+        children: const [
+          Icon(Icons.search, color: Color(0xFF94A3B8)),
+          SizedBox(width: 10),
+          Expanded(child: Text('Buscar productos, servicios, videos', style: TextStyle(color: Color(0xFF94A3B8)))),
+        ],
+      ),
+    );
+  }
+}
+
+class _FilterChips extends StatelessWidget {
+  final chips = const ['Destacados', 'Live ahora', 'Comercios', 'Servicios'];
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 36,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (context, i) => Chip(
+          label: Text(chips[i]),
+          backgroundColor: i == 0 ? const Color(0xFF0F172A) : Colors.white,
+          labelStyle: TextStyle(color: i == 0 ? Colors.white : const Color(0xFF475569)),
+          side: BorderSide(color: i == 0 ? Colors.transparent : const Color(0xFFE2E8F0)),
+        ),
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemCount: chips.length,
       ),
     );
   }

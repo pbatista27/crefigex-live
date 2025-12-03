@@ -18,14 +18,15 @@ const (
 )
 
 type Order struct {
-	ID            string
-	CustomerID    string
-	VendorID      string
-	DeliveryType  DeliveryType
+	ID              string
+	CustomerID      string
+	VendorID        string
+	DeliveryType    DeliveryType
 	ShippingAddress string
-	Status        OrderStatus
-	TotalAmount   int64
-	CreatedAt     time.Time
+	Status          OrderStatus
+	PaymentPlanID   string
+	TotalAmount     int64
+	CreatedAt       time.Time
 }
 
 type OrderItem struct {
@@ -44,5 +45,17 @@ type Installment struct {
 	Amount    int64
 	DueDate   time.Time
 	Paid      bool
+	CreatedAt time.Time
+}
+
+type CartItem struct {
+	ID        string
+	UserID    string
+	VendorID  string
+	ProductID string
+	ServiceID string
+	Quantity  int
+	UnitPrice int64
+	Total     int64
 	CreatedAt time.Time
 }

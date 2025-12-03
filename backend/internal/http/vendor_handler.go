@@ -19,11 +19,11 @@ func NewVendorHandler(vendors *service.VendorService) *VendorHandler {
 
 func (h *VendorHandler) Register(c *gin.Context) {
 	var req struct {
-		Name        string `json:"name"`
-		Phone       string `json:"phone"`
-		Address     string `json:"address"`
-		CategoryID  string `json:"category_id"`
-		Description string `json:"description"`
+		Name        string            `json:"name"`
+		Phone       string            `json:"phone"`
+		Address     string            `json:"address"`
+		CategoryID  string            `json:"category_id"`
+		Description string            `json:"description"`
 		Type        domain.VendorType `json:"type"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -52,7 +52,12 @@ func (h *VendorHandler) List(c *gin.Context) {
 }
 
 func (h *VendorHandler) Get(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"vendor_id": c.Param("id")})
+	v, err := h.vendors.Get(c.Request.Context(), c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"vendor": v})
 }
 
 func (h *VendorHandler) AdminList(c *gin.Context) {

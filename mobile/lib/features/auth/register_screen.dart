@@ -55,7 +55,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFF7F7F9), Colors.white],
+            colors: [Color(0xFFe0e7ff), Color(0xFFf8fafc)],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -75,7 +75,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         padding: const EdgeInsets.all(16),
         child: Card(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 4,
+          elevation: 8,
+          shadowColor: Colors.black12,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Form(
@@ -113,8 +114,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6366f1),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
                     onPressed: _loading ? null : _submitClient,
-                    child: _loading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Crear cuenta'),
+                    child: _loading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Crear cuenta', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),
                 ],
               ),
@@ -127,7 +133,8 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
         padding: const EdgeInsets.all(16),
         child: Card(
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          elevation: 4,
+          elevation: 8,
+          shadowColor: Colors.black12,
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Form(
@@ -188,8 +195,13 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6366f1),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
                     onPressed: _loading ? null : _submitVendor,
-                    child: _loading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Solicitar aprobación'),
+                    child: _loading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white)) : const Text('Solicitar aprobación', style: TextStyle(fontWeight: FontWeight.w700)),
                   ),
                 ],
               ),

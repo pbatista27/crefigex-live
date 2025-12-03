@@ -13,3 +13,11 @@ type Payment struct {
 	BankDest      string
 	CreatedAt     time.Time
 }
+
+type PaymentPlan struct {
+	ID                string
+	Name              string
+	InitialPercentage float64
+	Installments      int
+	DaysBetween       int
+}

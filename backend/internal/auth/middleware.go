@@ -43,6 +43,9 @@ func Middleware(secret string, allowedRoles ...string) gin.HandlerFunc {
 
 		c.Set("userID", claims.UserID)
 		c.Set("roles", claims.Roles)
+		// email/name not in claims by default; placeholders to enrich /me response
+		c.Set("email", "")
+		c.Set("name", "")
 		c.Next()
 	}
 }

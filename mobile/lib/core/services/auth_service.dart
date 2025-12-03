@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 
 import '../config/api_config.dart';
 import 'api_client.dart';
+import 'auth_store.dart';
 
 class AuthService {
   final ApiClient _client = ApiClient(baseUrl: ApiConfig.baseUrl);
@@ -66,6 +67,25 @@ class AuthService {
       'password': password,
     });
     return _handle(res);
+  }
+
+  Future<void> logout() async {
+    await AuthStore.clear();
+  }
+
+  Future<String?> refresh(String token) async {
+    final res = await _client.post('/auth/refresh', {}, token: token);
+    if (res.statusCode < 200 || res.statusCode >= 300) return null;
+    try {
+      final body = jsonDecode(res.body) as Map<String, dynamic>;
+      final newToken = body['token']?.toString();
+      if (newToken != null && newToken.isNotEmpty) {
+        await AuthStore.saveToken(newToken);
+      }
+      return newToken;
+    } catch (_) {
+      return null;
+    }
   }
 
   String? _handle(http.Response res) {

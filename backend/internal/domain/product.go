@@ -11,6 +11,7 @@ type Product struct {
 	Currency    string
 	Active      bool
 	CategoryID  string
+	Stock       int
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

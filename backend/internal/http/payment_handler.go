@@ -24,6 +24,10 @@ func (h *PaymentHandler) Register(c *gin.Context) {
 		return
 	}
 	req.OrderID = c.Param("id")
+	if req.Amount <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "amount required"})
+		return
+	}
 	if err := h.payments.Register(c.Request.Context(), &req); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -32,5 +36,10 @@ func (h *PaymentHandler) Register(c *gin.Context) {
 }
 
 func (h *PaymentHandler) ListInstallments(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"data": []domain.Installment{}})
+	data, err := h.payments.ListInstallmentsByCustomer(c.Request.Context(), c.GetString("userID"))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": data})
 }

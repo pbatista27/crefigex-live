@@ -13,14 +13,14 @@ const (
 )
 
 type Delivery struct {
-	ID               string
-	OrderID          string
-	VendorID         string
-	CustomerID       string
-	DeliveryType     DeliveryType
-	Status           DeliveryStatus
-	PhotoURL         string
+	ID                string
+	OrderID           string
+	VendorID          string
+	CustomerID        string
+	DeliveryType      DeliveryType
+	Status            DeliveryStatus
+	PhotoURL          string
 	CustomerConfirmed bool
-	CreatedAt        time.Time
-	UpdatedAt        time.Time
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
 }

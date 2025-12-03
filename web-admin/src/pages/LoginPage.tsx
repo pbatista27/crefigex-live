@@ -1,10 +1,23 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const submit = (e: React.FormEvent) => {
+  const { login, loading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/dashboard');
+    try {
+      setError('');
+      await login(email, password);
+      navigate('/dashboard');
+    } catch (err) {
+      setError((err as Error).message);
+    }
   };
 
   return (
@@ -16,15 +29,16 @@ const LoginPage = () => {
         <form onSubmit={submit} className="form">
           <div className="field">
             <label>Email</label>
-            <input type="email" required placeholder="admin@crefigex.com" />
+            <input type="email" required placeholder="admin@crefigex.com" value={email} onChange={e => setEmail(e.target.value)} />
           </div>
           <div className="field">
             <label>Contraseña</label>
-            <input type="password" required placeholder="••••••••" />
+            <input type="password" required placeholder="••••••••" value={password} onChange={e => setPassword(e.target.value)} />
           </div>
-          <button type="submit" className="btn" style={{ width: '100%' }}>
-            Ingresar
+          <button type="submit" className="btn" style={{ width: '100%' }} disabled={loading}>
+            {loading ? 'Ingresando...' : 'Ingresar'}
           </button>
+          {error && <p style={{ color: '#fca5a5', marginTop: 12 }}>{error}</p>}
         </form>
       </div>
     </div>

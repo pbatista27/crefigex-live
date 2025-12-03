@@ -30,3 +30,7 @@ func (s *VendorService) Reject(ctx context.Context, id string) error {
 func (s *VendorService) List(ctx context.Context, status domain.VendorStatus) ([]domain.Vendor, error) {
 	return s.vendors.List(ctx, status)
 }
+
+func (s *VendorService) Get(ctx context.Context, id string) (*domain.Vendor, error) {
+	return s.vendors.Get(ctx, id)
+}
