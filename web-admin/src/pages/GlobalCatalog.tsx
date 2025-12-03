@@ -136,108 +136,109 @@ const GlobalCatalog: React.FC = () => {
   };
 
   return (
-    <div className="page">
-      <div className="card">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div>
-            <h2>Catálogo Global</h2>
-            <p style={{ color: 'var(--muted)', margin: 0 }}>Productos y servicios publicados en Crefigex Live.</p>
+    <>
+      <div className="page">
+        <div className="card">
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h2>Catálogo Global</h2>
+              <p style={{ color: 'var(--muted)', margin: 0 }}>Productos y servicios publicados en Crefigex Live.</p>
+            </div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <button className="btn secondary" onClick={load} disabled={loading}>{loading ? 'Cargando...' : 'Refrescar'}</button>
+              <button className="btn secondary" onClick={() => openForm(false)}>Nuevo producto</button>
+              <button className="btn secondary" onClick={() => openForm(true)}>Nuevo servicio</button>
+              <button className="btn secondary" onClick={exportCsv} disabled={!items.length}>Exportar</button>
+            </div>
           </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <button className="btn secondary" onClick={load} disabled={loading}>{loading ? 'Cargando...' : 'Refrescar'}</button>
-            <button className="btn secondary" onClick={() => openForm(false)}>Nuevo producto</button>
-            <button className="btn secondary" onClick={() => openForm(true)}>Nuevo servicio</button>
-            <button className="btn secondary" onClick={exportCsv} disabled={!items.length}>Exportar</button>
-          </div>
-        </div>
-        {error && <p style={{ color: '#fca5a5' }}>{error}</p>}
-        <table style={{ marginTop: 12 }}>
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Vendedor</th>
-              <th>Categoría</th>
-              <th>Tipo</th>
-              <th>Estado</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map(item => (
-              <tr key={item.id}>
-                <td>{item.name}</td>
-                <td>{item.vendor_id || '-'}</td>
-                <td>{item.category_id || '-'}</td>
-                <td>{item.type}</td>
-                <td>
-                  <span className={(item.active ?? true) ? 'badge approved' : 'badge pending'}>
-                    {(item.active ?? true) ? 'ACTIVO' : 'INACTIVO'}
-                  </span>
-                </td>
-                <td style={{ display: 'flex', gap: 6 }}>
-                  <button className="btn secondary" onClick={() => openForm(item.type === 'SERVICIO', item)}>Editar</button>
-                  <button
-                    className="btn danger"
-                    onClick={async () => {
-                      if (!token) return;
-                      try {
-                        if (item.type === 'PRODUCTO') await catalogApi.deleteProduct(token, item.id);
-                        else await catalogApi.deleteService(token, item.id);
-                        show('Eliminado', 'success');
-                        load();
-                      } catch (e) {
-                        show((e as Error).message, 'error');
-                      }
-                    }}
-                  >
-                    Borrar
-                  </button>
-                </td>
+          {error && <p style={{ color: '#fca5a5' }}>{error}</p>}
+          <table style={{ marginTop: 12 }}>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Vendedor</th>
+                <th>Categoría</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <Toast />
-    </div>
-    {showForm && (
-      <div className="modal">
-        <div className="modal-content card" style={{ width: 420 }}>
-          <h3 style={{ marginTop: 0 }}>{editingId ? 'Editar' : 'Crear'} {isService ? 'servicio' : 'producto'}</h3>
-          <div className="form">
-            <div className="field">
-              <label>Vendor ID</label>
-              <input value={form.vendor_id} onChange={e => setForm({ ...form, vendor_id: e.target.value })} required />
-            </div>
-            <div className="field">
-              <label>Nombre</label>
-              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-            </div>
-            <div className="field">
-              <label>Precio</label>
-              <input type="number" value={form.price} onChange={e => setForm({ ...form, price: Number(e.target.value) })} required />
-            </div>
-            {!isService && (
-              <div className="field">
-                <label>Categoría</label>
-                <input value={form.category_id} onChange={e => setForm({ ...form, category_id: e.target.value })} />
-              </div>
-            )}
-            {isService && (
-              <div className="field">
-                <label>Tipo de servicio</label>
-                <input value={form.service_type} onChange={e => setForm({ ...form, service_type: e.target.value })} />
-              </div>
-            )}
-          </div>
-          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <button className="btn" onClick={submitForm}>Guardar</button>
-            <button className="btn secondary" onClick={() => setShowForm(false)}>Cancelar</button>
-          </div>
+            </thead>
+            <tbody>
+              {items.map(item => (
+                <tr key={item.id}>
+                  <td>{item.name}</td>
+                  <td>{item.vendor_id || '-'}</td>
+                  <td>{item.category_id || '-'}</td>
+                  <td>{item.type}</td>
+                  <td>
+                    <span className={(item.active ?? true) ? 'badge approved' : 'badge pending'}>
+                      {(item.active ?? true) ? 'ACTIVO' : 'INACTIVO'}
+                    </span>
+                  </td>
+                  <td style={{ display: 'flex', gap: 6 }}>
+                    <button className="btn secondary" onClick={() => openForm(item.type === 'SERVICIO', item)}>Editar</button>
+                    <button
+                      className="btn danger"
+                      onClick={async () => {
+                        if (!token) return;
+                        try {
+                          if (item.type === 'PRODUCTO') await catalogApi.deleteProduct(token, item.id);
+                          else await catalogApi.deleteService(token, item.id);
+                          show('Eliminado', 'success');
+                          load();
+                        } catch (e) {
+                          show((e as Error).message, 'error');
+                        }
+                      }}
+                    >
+                      Borrar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
-    )}
-    <Toast />
+      {showForm && (
+        <div className="modal">
+          <div className="modal-content card" style={{ width: 420 }}>
+            <h3 style={{ marginTop: 0 }}>{editingId ? 'Editar' : 'Crear'} {isService ? 'servicio' : 'producto'}</h3>
+            <div className="form">
+              <div className="field">
+                <label>Vendor ID</label>
+                <input value={form.vendor_id} onChange={e => setForm({ ...form, vendor_id: e.target.value })} required />
+              </div>
+              <div className="field">
+                <label>Nombre</label>
+                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+              </div>
+              <div className="field">
+                <label>Precio</label>
+                <input type="number" value={form.price} onChange={e => setForm({ ...form, price: Number(e.target.value) })} required />
+              </div>
+              {!isService && (
+                <div className="field">
+                  <label>Categoría</label>
+                  <input value={form.category_id} onChange={e => setForm({ ...form, category_id: e.target.value })} />
+                </div>
+              )}
+              {isService && (
+                <div className="field">
+                  <label>Tipo de servicio</label>
+                  <input value={form.service_type} onChange={e => setForm({ ...form, service_type: e.target.value })} />
+                </div>
+              )}
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+              <button className="btn" onClick={submitForm}>Guardar</button>
+              <button className="btn secondary" onClick={() => setShowForm(false)}>Cancelar</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <Toast />
+    </>
   );
 };
 
