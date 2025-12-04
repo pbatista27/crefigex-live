@@ -109,3 +109,12 @@ func (h *OrderHandler) ListMine(c *gin.Context) {
 	data, _ := h.orders.ListByCustomer(c.Request.Context(), c.GetString("userID"))
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
+
+func (h *OrderHandler) ListAdmin(c *gin.Context) {
+	data, err := h.orders.ListAdmin(c.Request.Context())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": data})
+}

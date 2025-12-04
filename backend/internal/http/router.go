@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"database/sql"
 	"log"
 	"time"
@@ -22,6 +23,12 @@ func NewRouter(cfg *config.Config) *gin.Engine {
 	if err != nil {
 		log.Fatalf("db open: %v", err)
 	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := db.PingContext(ctx); err != nil {
+		log.Fatalf("db ping: %v", err)
+	}
+	log.Printf("db ping OK")
 
 	userRepo := postgres.NewUserRepository(db)
 	vendorRepo := postgres.NewVendorRepository(db)
@@ -161,6 +168,7 @@ func NewRouter(cfg *config.Config) *gin.Engine {
 			admin.PUT("/catalog/products/:id", catalogAdminHandler.UpdateProduct)
 			admin.POST("/catalog/services", catalogAdminHandler.CreateService)
 			admin.PUT("/catalog/services/:id", catalogAdminHandler.UpdateService)
+			admin.GET("/orders", orderHandler.ListAdmin)
 		}
 
 		api.GET("/crefigex/deliveries", crefigexHandler.List)

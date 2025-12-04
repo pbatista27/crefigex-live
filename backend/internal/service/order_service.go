@@ -76,6 +76,10 @@ func (s *OrderService) ListByCustomer(ctx context.Context, customerID string) ([
 	return s.orders.ListByCustomer(ctx, customerID)
 }
 
+func (s *OrderService) ListAdmin(ctx context.Context) ([]postgres.OrderAdminView, error) {
+	return s.orders.ListAdmin(ctx)
+}
+
 func (s *OrderService) AddToCart(ctx context.Context, item *domain.CartItem) error {
 	return s.cart.AddItem(ctx, item)
 }
